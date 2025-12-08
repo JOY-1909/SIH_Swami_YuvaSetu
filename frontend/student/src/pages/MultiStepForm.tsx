@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowRight, ArrowLeft, CheckCircle2, Loader2, MapPin, Download } from "lucide-react";
+import { ArrowRight, ArrowLeft, CheckCircle2, Loader2, MapPin, Download, Home } from "lucide-react";
 import { API_BASE_URL, apiService } from "@/services/api";
 
 // ---------- Types ----------
@@ -128,7 +128,10 @@ const defaultSkills = [
 ];
 
 const proficiencyLevels = ["Beginner", "Intermediate", "Advanced"];
-const yearOptions = Array.from({ length: 27 }, (_, i) => `${2000 + i}`); // 2000 to 2026 only
+// Updated yearOptions for education (2000 to 2030)
+const yearOptions = Array.from({ length: 31 }, (_, i) => `${2000 + i}`); // 2000 to 2030
+// Year options for experience (2010 to 2030)
+const experienceYearOptions = Array.from({ length: 21 }, (_, i) => `${2010 + i}`); // 2010 to 2030
 
 // Fixed MapComponent with proper cleanup - UPDATED TO SQUARE SHAPE
 const MapComponent: React.FC<{
@@ -777,6 +780,31 @@ export default function MultiStepForm() {
     setFormData(prev => ({ ...prev, location }));
   }, []);
 
+  // Calculate age from date of birth
+  const calculateAge = (dateOfBirth: string): number => {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
+
+  // Validate LinkedIn URL
+  const isValidLinkedInUrl = (url: string): boolean => {
+    if (!url) return true; // Allow empty
+    try {
+      const urlObj = new URL(url);
+      return urlObj.protocol === 'https:' && urlObj.hostname.includes('linkedin.com');
+    } catch {
+      return false;
+    }
+  };
+
   // Validation function for Step 1
   const validateStep1 = () => {
     const errors: { [key: string]: string } = {};
@@ -788,15 +816,37 @@ export default function MultiStepForm() {
       errors.phone = "This field is required";
     } else if (formData.phone.length !== 10) {
       errors.phone = "Phone number must be 10 digits";
+    } else if (!/^\d+$/.test(formData.phone)) {
+      errors.phone = "Phone number must contain only digits (0-9)";
     }
+    
     if (!formData.dateOfBirth) {
       errors.dateOfBirth = "This field is required";
+    } else {
+      // Check if date is valid and within range 2000-2005
+      const dob = new Date(formData.dateOfBirth);
+      const year = dob.getFullYear();
+      if (year < 2000 || year > 2005) {
+        errors.dateOfBirth = "Year must be between 2000 and 2005";
+      } else {
+        // Calculate age and check if between 21-24
+        const age = calculateAge(formData.dateOfBirth);
+        if (age < 21 || age > 24) {
+          errors.dateOfBirth = "Age must be between 21 and 24 years";
+        }
+      }
     }
+    
     if (!formData.gender) {
       errors.gender = "This field is required";
     }
     if (!formData.address.trim()) {
       errors.address = "This field is required";
+    }
+    
+    // Validate LinkedIn URL
+    if (formData.linkedin && !isValidLinkedInUrl(formData.linkedin)) {
+      errors.linkedin = "Please enter a valid LinkedIn URL starting with https://";
     }
     
     return errors;
@@ -809,15 +859,30 @@ export default function MultiStepForm() {
     formData.education.forEach((item) => {
       if (!item.institution.trim()) {
         errors[`education-${item.id}-institution`] = "This field is required";
+      } else if (/[0-9]/.test(item.institution)) {
+        errors[`education-${item.id}-institution`] = "Institution name should not contain numbers";
       }
+      
       if (!item.degree.trim()) {
         errors[`education-${item.id}-degree`] = "This field is required";
+      } else if (/[0-9]/.test(item.degree)) {
+        errors[`education-${item.id}-degree`] = "Degree name should not contain numbers";
       }
+      
+      if (item.fieldOfStudy && /[0-9]/.test(item.fieldOfStudy)) {
+        errors[`education-${item.id}-fieldOfStudy`] = "Field of study should not contain numbers";
+      }
+      
       if (!item.startYear) {
         errors[`education-${item.id}-startYear`] = "This field is required";
       }
       if (!item.endYear) {
         errors[`education-${item.id}-endYear`] = "This field is required";
+      }
+      
+      // Validate score/CGPA (only numbers and decimal)
+      if (item.score && !/^\d*\.?\d*$/.test(item.score)) {
+        errors[`education-${item.id}-score`] = "Score/CGPA should contain only numbers and decimal point";
       }
     });
     
@@ -875,12 +940,20 @@ export default function MultiStepForm() {
               addressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
               addressRef.current?.focus();
               break;
+            case 'linkedin':
+              // Find linkedin input
+              const linkedinInput = document.getElementById('linkedin') as HTMLInputElement;
+              if (linkedinInput) {
+                linkedinInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                linkedinInput.focus();
+              }
+              break;
           }
         }, 100);
         
         toast({
           title: "Missing information",
-          description: "Please fill all required personal details.",
+          description: "Please fill all required personal details correctly.",
           variant: "destructive",
         });
         return;
@@ -915,7 +988,7 @@ export default function MultiStepForm() {
         
         toast({
           title: "Education incomplete",
-          description: "Please fill required fields in each education entry.",
+          description: "Please fill required fields in each education entry correctly.",
           variant: "destructive",
         });
         return;
@@ -980,6 +1053,107 @@ export default function MultiStepForm() {
 
   const handlePrevious = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
+  };
+
+  // Handle phone input - only allow digits
+  const handlePhoneInput = (value: string) => {
+    // Remove non-digit characters
+    const digitsOnly = value.replace(/\D/g, '');
+    // Limit to 10 digits
+    const limitedDigits = digitsOnly.slice(0, 10);
+    updateField("phone", limitedDigits);
+  };
+
+  // Handle DOB input - restrict to 4-digit year (2000-2005) and validate age
+  const handleDOBInput = (value: string) => {
+    updateField("dateOfBirth", value);
+    
+    // Clear previous age error if any
+    if (fieldErrors.dateOfBirth && fieldErrors.dateOfBirth.includes("Age")) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.dateOfBirth;
+        return newErrors;
+      });
+    }
+    
+    // Calculate and show age if date is valid
+    if (value) {
+      const age = calculateAge(value);
+      // You can optionally show the age to the user
+      console.log("Age calculated:", age);
+    }
+  };
+
+  // Handle score/CGPA input - only allow numbers and decimal
+  const handleScoreInput = (value: string, id: number) => {
+    // Remove non-numeric characters except decimal point
+    const cleanValue = value.replace(/[^\d.]/g, '');
+    // Ensure only one decimal point
+    const parts = cleanValue.split('.');
+    const finalValue = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : cleanValue;
+    
+    updateListItem<EducationItem>(
+      "education",
+      id,
+      { score: finalValue }
+    );
+  };
+
+  // Handle institution input - only allow alphabets and spaces
+  const handleInstitutionInput = (value: string, id: number) => {
+    // Allow alphabets, spaces, hyphens, apostrophes, and parentheses
+    const cleanValue = value.replace(/[^a-zA-Z\s\-'()&]/g, '');
+    updateListItem<EducationItem>(
+      "education",
+      id,
+      { institution: cleanValue }
+    );
+  };
+
+  // Handle degree input - only allow alphabets and spaces
+  const handleDegreeInput = (value: string, id: number) => {
+    // Allow alphabets, spaces, hyphens, and commas
+    const cleanValue = value.replace(/[^a-zA-Z\s\-,]/g, '');
+    updateListItem<EducationItem>(
+      "education",
+      id,
+      { degree: cleanValue }
+    );
+  };
+
+  // Handle field of study input - only allow alphabets and spaces
+  const handleFieldOfStudyInput = (value: string, id: number) => {
+    // Allow alphabets, spaces, and hyphens
+    const cleanValue = value.replace(/[^a-zA-Z\s\-]/g, '');
+    updateListItem<EducationItem>(
+      "education",
+      id,
+      { fieldOfStudy: cleanValue }
+    );
+  };
+
+  // Get all selected languages including custom ones
+  const getAllSelectedLanguages = () => {
+    const current = (formData.languages || "")
+      .split(",")
+      .map((l) => l.trim())
+      .filter(Boolean);
+    return current;
+  };
+
+  // Add custom language
+  const handleAddCustomLanguage = () => {
+    if (!customLanguage.trim()) return;
+    
+    const current = getAllSelectedLanguages();
+    const newLanguage = customLanguage.trim();
+    
+    if (!current.includes(newLanguage)) {
+      const next = [...current, newLanguage];
+      updateField("languages", next.join(", "));
+    }
+    setCustomLanguage("");
   };
 
   // Generate PDF Resume
@@ -1269,17 +1443,19 @@ export default function MultiStepForm() {
                         ref={phoneRef}
                         id="phone"
                         value={formData.phone}
-                        onChange={(e) => updateField("phone", e.target.value)}
+                        onChange={(e) => handlePhoneInput(e.target.value)}
                         placeholder="10-digit mobile number"
                         maxLength={10}
                         className={fieldErrors.phone ? "border-red-500" : ""}
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                       />
                     </div>
                     {fieldErrors.phone && (
                       <p className="text-sm text-red-500">{fieldErrors.phone}</p>
                     )}
                     <p className="text-xs text-gray-500">
-                      Enter your phone number. 
+                      Enter your 10-digit phone number (digits only).
                     </p>
                   </div>
                 </div>
@@ -1291,11 +1467,18 @@ export default function MultiStepForm() {
                     id="dob"
                     type="date"
                     value={formData.dateOfBirth}
-                    onChange={(e) => updateField("dateOfBirth", e.target.value)}
+                    onChange={(e) => handleDOBInput(e.target.value)}
                     className={fieldErrors.dateOfBirth ? "border-red-500" : ""}
+                    min="2000-01-01"
+                    max="2005-12-31"
                   />
                   {fieldErrors.dateOfBirth && (
                     <p className="text-sm text-red-500">{fieldErrors.dateOfBirth}</p>
+                  )}
+                  {formData.dateOfBirth && !fieldErrors.dateOfBirth && (
+                    <p className="text-xs text-green-600">
+                      Age: {calculateAge(formData.dateOfBirth)} years
+                    </p>
                   )}
                 </div>
 
@@ -1351,12 +1534,8 @@ export default function MultiStepForm() {
                 <div className="md:col-span-2 space-y-2">
                   <Label>Languages you know</Label>
                   <div className="flex flex-wrap gap-2">
-                    {defaultLanguages.map((lang) => {
-                      const current = (formData.languages || "")
-                        .split(",")
-                        .map((l) => l.trim())
-                        .filter(Boolean);
-                      const selected = current.includes(lang);
+                    {getAllSelectedLanguages().map((lang) => {
+                      const selected = getAllSelectedLanguages().includes(lang);
 
                       return (
                         <button
@@ -1365,9 +1544,9 @@ export default function MultiStepForm() {
                           onClick={() => {
                             let next: string[];
                             if (selected) {
-                              next = current.filter((l) => l !== lang);
+                              next = getAllSelectedLanguages().filter((l) => l !== lang);
                             } else {
-                              next = [...current, lang];
+                              next = [...getAllSelectedLanguages(), lang];
                             }
                             updateField("languages", next.join(", "));
                           }}
@@ -1388,22 +1567,16 @@ export default function MultiStepForm() {
                       placeholder="Add more languages"
                       value={customLanguage}
                       onChange={(e) => setCustomLanguage(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleAddCustomLanguage();
+                        }
+                      }}
                     />
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => {
-                        if (!customLanguage.trim()) return;
-                        const current = (formData.languages || "")
-                          .split(",")
-                          .map((l) => l.trim())
-                          .filter(Boolean);
-                        if (!current.includes(customLanguage.trim())) {
-                          const next = [...current, customLanguage.trim()];
-                          updateField("languages", next.join(", "));
-                        }
-                        setCustomLanguage("");
-                      }}
+                      onClick={handleAddCustomLanguage}
                     >
                       Add
                     </Button>
@@ -1417,7 +1590,15 @@ export default function MultiStepForm() {
                     value={formData.linkedin}
                     onChange={(e) => updateField("linkedin", e.target.value)}
                     placeholder="https://www.linkedin.com/in/username"
+                    className={fieldErrors.linkedin ? "border-red-500" : ""}
+                    type="url"
                   />
+                  {fieldErrors.linkedin && (
+                    <p className="text-sm text-red-500">{fieldErrors.linkedin}</p>
+                  )}
+                  {formData.linkedin && !fieldErrors.linkedin && (
+                    <p className="text-xs text-green-600">✓ Valid LinkedIn URL</p>
+                  )}
                 </div>
 
                 <div className="md:col-span-2 space-y-2">
@@ -1464,11 +1645,7 @@ export default function MultiStepForm() {
                           data-field="institution"
                           value={item.institution}
                           onChange={(e) =>
-                            updateListItem<EducationItem>(
-                              "education",
-                              item.id,
-                              { institution: e.target.value }
-                            )
+                            handleInstitutionInput(e.target.value, item.id)
                           }
                           placeholder="College / school name"
                           className={fieldErrors[`education-${item.id}-institution`] ? "border-red-500" : ""}
@@ -1485,11 +1662,7 @@ export default function MultiStepForm() {
                           data-field="degree"
                           value={item.degree}
                           onChange={(e) =>
-                            updateListItem<EducationItem>(
-                              "education",
-                              item.id,
-                              { degree: e.target.value }
-                            )
+                            handleDegreeInput(e.target.value, item.id)
                           }
                           placeholder="e.g., B.Tech, B.Com, Class XII"
                           className={fieldErrors[`education-${item.id}-degree`] ? "border-red-500" : ""}
@@ -1506,14 +1679,14 @@ export default function MultiStepForm() {
                           data-field="fieldOfStudy"
                           value={item.fieldOfStudy}
                           onChange={(e) =>
-                            updateListItem<EducationItem>(
-                              "education",
-                              item.id,
-                              { fieldOfStudy: e.target.value }
-                            )
+                            handleFieldOfStudyInput(e.target.value, item.id)
                           }
                           placeholder="e.g., Computer Science"
+                          className={fieldErrors[`education-${item.id}-fieldOfStudy`] ? "border-red-500" : ""}
                         />
+                        {fieldErrors[`education-${item.id}-fieldOfStudy`] && (
+                          <p className="text-sm text-red-500">{fieldErrors[`education-${item.id}-fieldOfStudy`]}</p>
+                        )}
                       </div>
 
                       {/* Score */}
@@ -1523,14 +1696,15 @@ export default function MultiStepForm() {
                           data-field="score"
                           value={item.score}
                           onChange={(e) =>
-                            updateListItem<EducationItem>(
-                              "education",
-                              item.id,
-                              { score: e.target.value }
-                            )
+                            handleScoreInput(e.target.value, item.id)
                           }
                           placeholder="e.g., 8.5 CGPA / 85%"
+                          className={fieldErrors[`education-${item.id}-score`] ? "border-red-500" : ""}
+                          inputMode="decimal"
                         />
+                        {fieldErrors[`education-${item.id}-score`] && (
+                          <p className="text-sm text-red-500">{fieldErrors[`education-${item.id}-score`]}</p>
+                        )}
                       </div>
 
                       {/* Start year */}
@@ -1662,33 +1836,53 @@ export default function MultiStepForm() {
                       </div>
 
                       <div className="space-y-1">
-                        <Label>Start date</Label>
-                        <Input
-                          type="month"
+                        <Label>Start year *</Label>
+                        <Select
                           value={item.startDate}
-                          onChange={(e) =>
+                          onValueChange={(value) =>
                             updateListItem<ExperienceItem>(
                               "experience",
                               item.id,
-                              { startDate: e.target.value }
+                              { startDate: value }
                             )
                           }
-                        />
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select start year" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {experienceYearOptions.map((year) => (
+                              <SelectItem key={year} value={year}>
+                                {year}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div className="space-y-1">
-                        <Label>End date</Label>
-                        <Input
-                          type="month"
+                        <Label>End year *</Label>
+                        <Select
                           value={item.endDate}
-                          onChange={(e) =>
+                          onValueChange={(value) =>
                             updateListItem<ExperienceItem>(
                               "experience",
                               item.id,
-                              { endDate: e.target.value }
+                              { endDate: value }
                             )
                           }
-                        />
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select end year" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {experienceYearOptions.map((year) => (
+                              <SelectItem key={year} value={year}>
+                                {year}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div className="md:col-span-2 space-y-1">
@@ -2309,15 +2503,26 @@ export default function MultiStepForm() {
             {/* Navigation Buttons */}
             {!isLoadingProfile && (
               <div className="flex justify-between pt-4 border-t">
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={currentStep === 1}
-                  onClick={handlePrevious}
-                >
-                  <ArrowLeft className="w-4 h-4 mr-1" />
-                  Previous
-                </Button>
+                {/* Home button for Step 1, Previous button for other steps */}
+                {currentStep === 1 ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate("/")}
+                  >
+                    <Home className="w-4 h-4 mr-1" />
+                    Home
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePrevious}
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-1" />
+                    Previous
+                  </Button>
+                )}
 
                 {currentStep < totalSteps ? (
                   <Button type="button" onClick={handleNext}>
