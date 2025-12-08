@@ -1,0 +1,47 @@
+Environment files
+.env
+.env.local
+.env.*.local
+
+Firebase Admin SDK credentials
+firebaseadminsdk*.json
+firebase-service-account.json
+backend\yuvasetu-employer-firebase-adminsdk-fbsvc-f7399ddf87.json
+*adminsdk.json
+
+Python
+pycache/
+*.pyc
+venv/
+.venv/​l̥l̥
+
+Logs
+logs
+.log
+npm-debug.log
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*​
+
+Node / build
+node_modules/
+pm-yuva-admin-hub\node_modules
+dist/
+dist-ssr​
+
+Local config
+*.local​
+
+IDE / editor
+.idea/
+.vscode/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+*.suo
+.ntvs
+*.njsproj
+*.sln
+*.sw?
+*.swp​

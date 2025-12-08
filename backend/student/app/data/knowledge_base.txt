@@ -1,0 +1,67 @@
+YUVA SETU KNOWLEDGE BASE & GUIDELINES
+
+SECTION 1: PLATFORM GUIDELINES
+1. Eligibility
+- Students currently enrolled in a recognized university or college in India are eligible.
+- You must hold a valid student ID card.
+- The minimum age requirement is 18 years.
+
+2. Application Process
+- Go to the "Internships" tab in the navigation bar.
+- Browse the available opportunities. You can filter by sector (Technology, Public Policy, etc.).
+- Click the "Apply Now" button on an internship card.
+- Submit your profile details.
+- Constraint: You can apply to a maximum of 3 internships simultaneously.
+
+3. Duration & Stipend
+- Standard internship duration is between 8 weeks to 6 months.
+- Stipends are decided by the individual employer and are paid monthly.
+- Unpaid internships are permitted but must offer a certificate of completion.
+- Stipend amounts are listed on the internship details page.
+
+4. Code of Conduct
+- Maintain professionalism, punctuality, and integrity.
+- Respect employer's confidentiality and intellectual property.
+- Misconduct may lead to immediate termination and blacklisting from the Yuva Setu platform.
+
+SECTION 2: HOW-TO GUIDES & NAVIGATION
+
+Q: How do I change the language of the portal?
+A: 
+1. Look at the top right corner of the Navbar.
+2. Click on the dropdown menu that shows the current language name (e.g., "English" or "Hindi").
+3. Select your preferred language (English or Hindi) from the list.
+4. The website content will update immediately.
+
+Q: How do I raise a support request or complaint?
+A:
+1. Go to the Navbar (top of the page).
+2. Hover over the "Support" menu item.
+3. Click on "Raise Request" in the dropdown.
+4. A modal form will appear. Enter the Subject of your issue and a detailed Message.
+5. Click "Submit". You will receive a Ticket ID.
+
+Q: How do I track my existing support request?
+A:
+1. Go to the Navbar.
+2. Hover over "Support".
+3. Click on "Track Request".
+4. You will be taken to a page listing your submitted tickets and their status (Open/Resolved).
+
+Q: How do I edit my profile?
+A:
+1. Click on your Avatar/Profile icon in the top right corner.
+2. Select "Edit Profile" from the dropdown.
+3. You will be redirected to the multi-step form to update your details.
+
+Q: Where can I find the official Platform Guidelines PDF?
+A:
+You can download it by clicking "Guidelines" in the Navbar menu or from the "Resources" section in the Footer.
+
+Q: What happens if I forget my password?
+A:
+Currently, you should contact support@yuvasetu.com or use the "Raise Request" feature if you are logged in. (Password reset feature coming soon).
+
+SECTION 3: CERTIFICATION & BENEFITS
+- Upon successful completion of an internship, you are eligible for a digital certificate.
+- NOTE: The specific certification details are handled by the employer, but Yuva Setu verifies the completion.

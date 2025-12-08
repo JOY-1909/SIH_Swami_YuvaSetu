@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* PM Yuva Setu Design System */
+    --background: 240 40% 99%;
+    --background-gradient-start: 240 100% 98%;
+    --background-gradient-end: 0 0% 100%;
+    --foreground: 220 26% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 26% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 26% 14%;
+
+    /* Primary Blue - #1A73E8 */
+    --primary: 217 82% 51%;
+    --primary-hover: 217 79% 39%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary & Muted */
+    --secondary: 220 13% 91%;
+    --secondary-foreground: 220 26% 14%;
+
+    --muted: 220 9% 65%;
+    --muted-foreground: 220 13% 36%;
+
+    /* Accent Orange - #F97316 */
+    --accent: 24 95% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Status Colors */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 24 95% 53%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Destructive/Error - #DC2626 */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders & Inputs */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 82% 51%;
+
+    /* Border Radius - 0.75rem */
+    --radius: 0.75rem;
+
+    /* Chip backgrounds */
+    --chip-blue-bg: 217 91% 95%;
+    --chip-blue-text: 217 82% 51%;
+    --chip-green-bg: 142 76% 95%;
+    --chip-green-text: 142 71% 45%;
+    --chip-orange-bg: 24 95% 95%;
+    --chip-orange-text: 24 95% 53%;
+  }
+
+  .dark {
+    --background: 220 26% 14%;
+    --foreground: 0 0% 98%;
+
+    --card: 220 20% 18%;
+    --card-foreground: 0 0% 98%;
+
+    --primary: 217 82% 51%;
+    --primary-hover: 217 79% 39%;
+    --primary-foreground: 0 0% 100%;
+
+    --muted: 220 13% 36%;
+    --muted-foreground: 220 9% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-gradient-to-b from-[hsl(var(--background-gradient-start))] to-[hsl(var(--background-gradient-end))] text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+}
+
+/* Add at the bottom of src/index.css */
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Custom Animations */
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(20px, -50px) scale(1.1);
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  75% {
+    transform: translate(20px, 20px) scale(1.05);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite ease-in-out;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.animation-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-300 {
+  animation-delay: 0.3s;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}

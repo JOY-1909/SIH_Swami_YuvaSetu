@@ -1,0 +1,26 @@
+[
+  {
+    "state": "Maharashtra",
+    "cities": ["Mumbai", "Pune", "Nagpur", "Nashik", "Thane", "Aurangabad"]
+  },
+  {
+    "state": "Karnataka",
+    "cities": ["Bengaluru", "Mysuru", "Mangaluru", "Hubballi", "Belagavi"]
+  },
+  {
+    "state": "Delhi",
+    "cities": ["New Delhi", "Delhi"]
+  },
+  {
+    "state": "Gujarat",
+    "cities": ["Ahmedabad", "Surat", "Vadodara", "Rajkot"]
+  },
+  {
+    "state": "Uttar Pradesh",
+    "cities": ["Lucknow", "Noida", "Kanpur", "Ghaziabad", "Varanasi"]
+  },
+  {
+    "state": "Tamil Nadu",
+    "cities": ["Chennai", "Coimbatore", "Madurai", "Tiruchirapalli"]
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "name": "yuvasetu-monorepo",
+  "private": true,
+  "scripts": {
+    "dev:fe-emp": "cd frontend/employer && npm run dev",
+    "dev:fe-admin": "cd frontend/admin && npm run dev",
+    "dev:fe-stu": "cd frontend/student && npm run dev",
+    "dev:be-emp": "cd backend/employer-admin && uvicorn app.main:app --reload --port 8000",
+    "dev:be-stu": "cd backend/student && uvicorn app.main:app --reload --port 8001",
+    "dev:all": "echo \"Start backends in two terminals: npm run dev:be-emp & npm run dev:be-stu\" && echo \"Then start frontends: npm run dev:fe-emp & npm run dev:fe-admin & npm run dev:fe-stu\""
+  }
+}
+
+

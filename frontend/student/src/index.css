@@ -1,0 +1,221 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* PM Internship Platform Design System - Bright, Professional, Government-Trustworthy */
+
+@layer base {
+  :root {
+    /* Yuva Setu - Clean White & Blue Theme */
+    --background: 0 0% 100%; /* Pure white */
+    --foreground: 222 47% 11%; /* Dark blue-gray text */
+
+    /* Primary Colors - Professional Blue */
+    --primary: 210 100% 50%; /* Bright blue #0080FF */
+    --primary-hover: 210 100% 45%; /* Darker blue */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
+
+    /* Secondary/Accent Colors */
+    --secondary: 210 40% 96%; /* Light blue-gray */
+    --secondary-foreground: 222 47% 11%;
+    
+    /* Success Green */
+    --success: 142 76% 36%; /* Professional green #16A34A */
+    --success-foreground: 0 0% 100%;
+    
+    /* Muted/Neutral */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%; /* Gray text #64748B */
+    
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    
+    /* UI Elements */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    
+    --border: 214 32% 91%; /* Light gray border */
+    --input: 214 32% 91%;
+    --ring: 210 100% 50%;
+    
+    /* Semantic Colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-gradient-to-br from-[#F6FBFF] to-[#FFF7F3] text-foreground font-['Poppins',sans-serif];
+    min-height: 100vh;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+  
+  .font-hindi {
+    font-family: 'Noto Sans Devanagari', sans-serif;
+  }
+  
+  .font-ui {
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  /* Hero section styling */
+  .hero-pattern {
+    background-image: 
+      radial-gradient(circle at 20% 50%, hsla(211, 100%, 85%, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, hsla(28, 100%, 85%, 0.1) 0%, transparent 50%);
+  }
+  
+  /* Tricolor band */
+  .tricolor-band {
+    background: linear-gradient(to bottom, 
+      hsl(var(--saffron)) 0%, 
+      hsl(var(--saffron)) 33%, 
+      hsl(0 0% 100%) 33%, 
+      hsl(0 0% 100%) 66%, 
+      hsl(var(--india-green)) 66%, 
+      hsl(var(--india-green)) 100%
+    );
+  }
+  
+  /* 3D Button effect */
+  .btn-3d {
+    position: relative;
+    transition: var(--transition-smooth);
+    box-shadow: var(--shadow-medium);
+  }
+  
+  .btn-3d:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: var(--shadow-3d);
+  }
+  
+  .btn-3d:active {
+    transform: translateY(0px) scale(0.98);
+  }
+  
+  /* Marquee animation */
+  @keyframes marquee {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+  
+  .animate-marquee {
+    animation: marquee 40s linear infinite;
+  }
+  
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+  
+  /* Card hover effect */
+  .card-interactive {
+    transition: var(--transition-smooth);
+    cursor: pointer;
+  }
+  
+  .card-interactive:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-strong);
+  }
+  
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Focus styles for accessibility */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  /* Animation utilities */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes scale-in {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes spring-in {
+    0% {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+  
+  .animate-slide-in-right {
+    animation: slide-in-right 0.5s ease-out;
+  }
+  
+  .animate-scale-in {
+    animation: scale-in 0.4s ease-out;
+  }
+  
+  .animate-spring-in {
+    animation: spring-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  /* Gradient text */
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent;
+  }
+}

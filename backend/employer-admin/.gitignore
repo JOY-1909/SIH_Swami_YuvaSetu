@@ -1,0 +1,31 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Firebase Admin SDK credentials
+*firebase*adminsdk*.json
+firebase-service-account.json
+*firebase*adminsdk-fbsvc-f7399ddf87*.json
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# FAISS index files
+data/faiss/*.index
+data/faiss/*.ids
+
+# Sentence transformers cache
+.cache/
+
+# Node
+node_modules/
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
