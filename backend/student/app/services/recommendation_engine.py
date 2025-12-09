@@ -1688,10 +1688,10 @@ class YuvaSetuRecommendationEngine:
             # Add timeout and limit to prevent hanging on large datasets
             try:
                 logger.info("Loading all internships from cursor...")
-                internships = await asyncio.wait_for(cursor.to_list(length=None), timeout=15.0)
+                internships = await asyncio.wait_for(cursor.to_list(length=None), timeout=60.0)
                 logger.info(f"✅ Successfully loaded {len(internships)} internships")
             except asyncio.TimeoutError:
-                logger.error("❌ Database query timed out after 15s")
+                logger.error("❌ Database query timed out after 60s")
                 # Try to get at least some internships with a limit
                 logger.info("Attempting to load limited set of internships...")
                 try:
@@ -2894,12 +2894,12 @@ async def get_recommendation_engine() -> YuvaSetuRecommendationEngine:
         
         if not _recommendation_engine.is_initialized() and not _initialization_started:
             _initialization_started = True
-            logger.info("🚀 Starting engine initialization (with 25s timeout)...")
+            logger.info("🚀 Starting engine initialization (with 120s timeout)...")
             try:
                 # Add timeout to prevent hanging
                 initialized = await asyncio.wait_for(
                     _recommendation_engine.initialize(),
-                    timeout=25.0
+                    timeout=120.0
                 )
                 if not initialized:
                     logger.error("❌ Engine initialization failed")
@@ -2907,7 +2907,7 @@ async def get_recommendation_engine() -> YuvaSetuRecommendationEngine:
                 else:
                     logger.info("✅ Engine initialization completed successfully")
             except asyncio.TimeoutError:
-                logger.error("❌ Engine initialization timed out after 25s")
+                logger.error("❌ Engine initialization timed out after 120s")
                 _initialization_started = False
                 raise RuntimeError("Recommendation engine initialization timed out. Please try again.")
             except Exception as e:
