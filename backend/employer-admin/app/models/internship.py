@@ -24,7 +24,7 @@ class Internship(Document):
     city: Optional[str] = None
 
     # Other meta
-    stipend: Optional[str] = None
+    stipend: Optional[int] = None
     sector: Optional[str] = None
 
     # Vector embedding for semantic search

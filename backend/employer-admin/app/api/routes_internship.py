@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from typing import List, Optional
+import re
 from fastapi import APIRouter, Depends, status, HTTPException
 from pydantic import BaseModel
 from beanie import PydanticObjectId
@@ -31,6 +32,28 @@ async def check_employer_verified(employer_uid: str) -> EmployerProfile:
             detail="Your account is pending admin verification. You cannot post internships until verified."
         )
     return profile
+
+
+def _parse_stipend(raw: Optional[str]) -> Optional[int]:
+    """Sanitize stipend input and return integer amount or None.
+
+    Accepts strings like '₹10000', '10,000', '10000/month' or integers.
+    Strips non-numeric characters and converts to int when possible.
+    """
+    if raw is None:
+        return None
+    if isinstance(raw, int):
+        return raw
+    s = str(raw)
+    # remove currency symbols, words and commas; keep digits, dot and minus
+    s = re.sub(r"[^0-9.\-]", "", s)
+    if not s:
+        return None
+    try:
+        val = float(s)
+        return int(val)
+    except ValueError:
+        return None
 
 
 class InternshipCreate(BaseModel):
@@ -84,7 +107,7 @@ class InternshipOut(BaseModel):
     location: str
     state: Optional[str]
     city: Optional[str]
-    stipend: Optional[str]
+    stipend: Optional[int]
     sector: Optional[str]
     start_date: Optional[datetime]
     end_date: Optional[datetime]
@@ -128,6 +151,8 @@ async def create_internship(
     # ✅ CHECK VERIFICATION BEFORE ALLOWING POST
     profile = await check_employer_verified(employer.uid)
     
+    stipend_value = _parse_stipend(payload.stipend)
+
     internship = Internship(
         owner_uid=employer.uid,
         organisation_name=profile.organisation_name,  # Use from verified profile
@@ -140,7 +165,7 @@ async def create_internship(
         location=payload.location,
         state=payload.state,
         city=payload.city,
-        stipend=payload.stipend,
+        stipend=stipend_value,
         sector=payload.sector,
         start_date=payload.start_date,
         end_date=payload.end_date,
@@ -216,7 +241,7 @@ async def update_internship(
 
     # Meta
     if payload.stipend is not None:
-        internship.stipend = payload.stipend
+        internship.stipend = _parse_stipend(payload.stipend)
     if payload.sector is not None:
         internship.sector = payload.sector
 
