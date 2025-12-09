@@ -1,6 +1,7 @@
 services:
   # Frontends
   frontend-student:
+    image: shubhk2167/yuvasetu-frontend-student:latest
     build:
       context: .
       dockerfile: frontend.Dockerfile
@@ -12,8 +13,11 @@ services:
       - student
       - frontend
       - all
+    environment:
+      - BACKEND_URL=http://backend-student:8000
 
   frontend-admin:
+    image: shubhk2167/yuvasetu-frontend-admin:latest
     build:
       context: .
       dockerfile: frontend.Dockerfile
@@ -25,8 +29,11 @@ services:
       - admin
       - frontend
       - all
+    environment:
+      - BACKEND_URL=http://backend-employer-admin:8000
 
   frontend-employer:
+    image: shubhk2167/yuvasetu-frontend-employer:latest
     build:
       context: .
       dockerfile: frontend.Dockerfile
@@ -38,9 +45,12 @@ services:
       - employer
       - frontend
       - all
+    environment:
+      - BACKEND_URL=http://backend-employer-admin:8000
 
   # Backends
   backend-student:
+    image: shubhk2167/yuvasetu-backend-student:latest
     build:
       context: .
       dockerfile: backend.Dockerfile
@@ -60,6 +70,7 @@ services:
       - all
 
   backend-employer-admin:
+    image: shubhk2167/yuvasetu-backend-employer-admin:latest
     build:
       context: .
       dockerfile: backend.Dockerfile

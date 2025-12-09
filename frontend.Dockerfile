@@ -38,6 +38,9 @@ FROM nginx:alpine
 ARG PROJECT_PATH
 COPY --from=builder /app/${PROJECT_PATH}/dist /usr/share/nginx/html
 
+# Copy custom Nginx configuration template
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+
 # Expose port 80
 EXPOSE 80
 
