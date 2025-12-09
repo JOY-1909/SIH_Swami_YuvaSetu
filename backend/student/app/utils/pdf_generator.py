@@ -2,6 +2,7 @@ from fpdf import FPDF
 from typing import Dict, List
 from datetime import datetime
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,10 @@ class ResumePDFGenerator:
             if data.get('careerObjective'):
                 ResumePDFGenerator._add_ats_header(pdf, "PROFESSIONAL SUMMARY")
                 pdf.set_font("Helvetica", size=10)
-                pdf.multi_cell(0, 5, str(data.get('careerObjective', '')))
+                summary_text = str(data.get('careerObjective', ''))
+                # Process bullet points and special characters
+                summary_text = ResumePDFGenerator._clean_text_for_ats(summary_text)
+                pdf.multi_cell(0, 5, summary_text)
                 pdf.ln(3)
 
             # --- EXPERIENCE ---
@@ -72,19 +76,21 @@ class ResumePDFGenerator:
                         header_text = role or company
                     
                     pdf.set_font("Helvetica", 'B', 10) # Bold for role/company
-                    # Date on the right is tricky in FPDF without columns, so we put it next or below.
-                    # ATS parses linear text better. Let's put date on the same line or next line.
-                    # Standard format: Role, Company | Date
                     
                     date_str = ""
                     if start_date or end_date:
-                        date_str = f" ({start_date} - {end_date})"
+                        # Clean date strings
+                        start_clean = ResumePDFGenerator._clean_date(start_date)
+                        end_clean = ResumePDFGenerator._clean_date(end_date)
+                        date_str = f" ({start_clean} - {end_clean})"
                     
                     pdf.cell(0, 5, header_text + date_str, ln=True)
                     
                     if description:
                         pdf.set_font("Helvetica", size=10)
-                        pdf.multi_cell(0, 5, description)
+                        # Clean description text
+                        clean_desc = ResumePDFGenerator._clean_text_for_ats(description)
+                        pdf.multi_cell(0, 5, clean_desc)
                     
                     pdf.ln(3)
 
@@ -103,12 +109,18 @@ class ResumePDFGenerator:
                     
                     if title:
                         pdf.set_font("Helvetica", 'B', 10)
-                        pdf.cell(0, 5, title, ln=True)
+                        pdf.cell(0, 5, ResumePDFGenerator._clean_text_for_ats(title), ln=True)
                     
                     pdf.set_font("Helvetica", size=10)
-                    if role: pdf.cell(0, 5, f"Role: {role}", ln=True)
-                    if tech: pdf.cell(0, 5, f"Technologies: {tech}", ln=True)
-                    if desc: pdf.multi_cell(0, 5, desc)
+                    if role: 
+                        role_text = ResumePDFGenerator._clean_text_for_ats(f"Role: {role}")
+                        pdf.cell(0, 5, role_text, ln=True)
+                    if tech: 
+                        tech_text = ResumePDFGenerator._clean_text_for_ats(f"Technologies: {tech}")
+                        pdf.cell(0, 5, tech_text, ln=True)
+                    if desc: 
+                        clean_desc = ResumePDFGenerator._clean_text_for_ats(desc)
+                        pdf.multi_cell(0, 5, clean_desc)
                     
                     pdf.ln(3)
 
@@ -126,18 +138,23 @@ class ResumePDFGenerator:
                     score = edu.get('score', '')
                     
                     line = ""
-                    if degree and institution: line = f"{degree}, {institution}"
-                    elif degree: line = degree
-                    elif institution: line = institution
+                    if degree and institution: 
+                        line = f"{degree}, {institution}"
+                    elif degree: 
+                        line = degree
+                    elif institution: 
+                        line = institution
                     
-                    if year: line += f" ({year})"
+                    if year: 
+                        line += f" ({year})"
                     
                     pdf.set_font("Helvetica", 'B', 10)
-                    pdf.cell(0, 5, line, ln=True)
+                    pdf.cell(0, 5, ResumePDFGenerator._clean_text_for_ats(line), ln=True)
                     
                     if score:
                         pdf.set_font("Helvetica", size=10)
-                        pdf.cell(0, 5, f"Score: {score}", ln=True)
+                        score_text = ResumePDFGenerator._clean_text_for_ats(f"Score: {score}")
+                        pdf.cell(0, 5, score_text, ln=True)
                     
                     pdf.ln(3)
 
@@ -150,13 +167,14 @@ class ResumePDFGenerator:
                 all_skills = []
                 for skill in skills_data:
                     if isinstance(skill, dict) and skill.get('name'):
-                        all_skills.append(skill.get('name'))
+                        all_skills.append(ResumePDFGenerator._clean_text_for_ats(skill.get('name')))
                     elif isinstance(skill, str):
-                        all_skills.append(skill)
+                        all_skills.append(ResumePDFGenerator._clean_text_for_ats(skill))
                 
                 if all_skills:
                     pdf.set_font("Helvetica", size=10)
-                    pdf.multi_cell(0, 5, ", ".join(all_skills))
+                    skills_text = ResumePDFGenerator._format_skills_for_ats(all_skills)
+                    pdf.multi_cell(0, 5, skills_text)
                     pdf.ln(3)
 
             # --- AWARDS & CERTIFICATIONS ---
@@ -171,14 +189,17 @@ class ResumePDFGenerator:
                          title = t.get('title', '')
                          provider = t.get('provider', '')
                          if title:
-                             extras.append(f"{title} - {provider}" if provider else title)
+                             clean_title = ResumePDFGenerator._clean_text_for_ats(title)
+                             clean_provider = ResumePDFGenerator._clean_text_for_ats(provider) if provider else ""
+                             extras.append(f"{clean_title} - {clean_provider}" if clean_provider else clean_title)
 
             # Accomplishments
             achievements = data.get('accomplishments', [])
             if isinstance(achievements, list):
                  for a in achievements:
                      if isinstance(a, dict) and a.get('title'):
-                         extras.append(a.get('title'))
+                         clean_title = ResumePDFGenerator._clean_text_for_ats(a.get('title'))
+                         extras.append(clean_title)
             
             if extras:
                 ResumePDFGenerator._add_ats_header(pdf, "CERTIFICATIONS & AWARDS")
@@ -198,6 +219,82 @@ class ResumePDFGenerator:
         pdf.ln(2)
         pdf.set_font("Helvetica", 'B', 11)
         pdf.cell(0, 6, title.upper(), ln=True)
-        # Optional: Add a subtle underline manually if needed, but simple bold caps is very ATS friendly.
-        # pdf.line(pdf.get_x(), pdf.get_y(), pdf.get_x() + pdf.get_string_width(title), pdf.get_y())
         pdf.ln(1)
+    
+    @staticmethod
+    def _clean_text_for_ats(text: str) -> str:
+        """
+        Clean and format text to be ATS-friendly while preserving important characters.
+        Converts bullet points to dashes, ensures proper spacing around colons and brackets.
+        """
+        if not text:
+            return ""
+        
+        # Convert to string
+        text = str(text)
+        
+        # Replace various bullet point characters with dashes (ATS-friendly)
+        bullet_replacements = {
+            '•': '-',
+            '○': '-',
+            '▪': '-',
+            '‣': '-',
+            '→': '-',
+            '▶': '-',
+            '✓': '-',
+            '✔': '-',
+            '☆': '-',
+            '★': '-',
+            '●': '-',
+        }
+        
+        for bullet_char, replacement in bullet_replacements.items():
+            text = text.replace(bullet_char, replacement)
+        
+        # Ensure proper spacing around colons (for ATS parsing)
+        text = re.sub(r'(\S):(\S)', r'\1: \2', text)
+        text = re.sub(r'(\S):\s+(\S)', r'\1: \2', text)
+        
+        # Ensure proper spacing around brackets
+        text = re.sub(r'(\S)\((\S)', r'\1 (\2', text)  # Add space before (
+        text = re.sub(r'(\S)\)(\S)', r'\1) \2', text)  # Add space after )
+        
+        # Normalize multiple spaces
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Ensure proper hyphen/dash spacing
+        text = re.sub(r'(\S)-(\S)', r'\1 - \2', text)
+        
+        # Remove any non-standard characters that might confuse ATS
+        # Keep standard punctuation: , . ; : ! ? - ( ) [ ] { } / \
+        text = re.sub(r'[^\w\s\-.,;:!?()\[\]{}/\\\'\"@#$%&*+=|<>]', '', text)
+        
+        return text.strip()
+    
+    @staticmethod
+    def _clean_date(date_str: str) -> str:
+        """Clean date string for ATS"""
+        if not date_str:
+            return "Present"
+        
+        # Remove any non-standard characters, keep only alphanumeric and basic punctuation
+        date_str = str(date_str)
+        date_str = re.sub(r'[^\w\s\-\/]', '', date_str)
+        return date_str.strip()
+    
+    @staticmethod
+    def _format_skills_for_ats(skills: List[str]) -> str:
+        """
+        Format skills list for ATS parsing.
+        Uses commas and semicolons appropriately.
+        """
+        if not skills:
+            return ""
+        
+        # Join with commas, ensure proper formatting
+        skills_text = ", ".join(skills)
+        
+        # Clean the final text
+        skills_text = ResumePDFGenerator._clean_text_for_ats(skills_text)
+        
+        return skills_text
