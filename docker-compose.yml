@@ -1,0 +1,98 @@
+services:
+  # Frontends
+  frontend-student:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+      args:
+        PROJECT_PATH: frontend/student
+    ports:
+      - "8080:80"
+    profiles:
+      - student
+      - frontend
+      - all
+
+  frontend-admin:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+      args:
+        PROJECT_PATH: frontend/admin
+    ports:
+      - "8081:80"
+    profiles:
+      - admin
+      - frontend
+      - all
+
+  frontend-employer:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+      args:
+        PROJECT_PATH: frontend/employer
+    ports:
+      - "8082:80"
+    profiles:
+      - employer
+      - frontend
+      - all
+
+  # Backends
+  backend-student:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+      args:
+        PROJECT_PATH: backend/student
+    ports:
+      - "8001:8000"
+    env_file:
+      - backend/student/.env
+    # environment:
+    #   - MONGODB_URL=${MONGODB_URL:-mongodb://mongo:27017/yuvasetu}
+    # depends_on:
+    #   - mongo
+    profiles:
+      - student
+      - backend
+      - all
+
+  backend-employer-admin:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+      args:
+        PROJECT_PATH: backend/employer-admin
+    ports:
+      - "8000:8000"
+    env_file:
+      - backend/employer-admin/.env
+    # environment:
+    #   - MONGODB_URL=${MONGODB_URL:-mongodb://mongo:27017/yuvasetu}
+    # depends_on:
+    #   - mongo
+    profiles:
+      - employer
+      - admin
+      - backend
+      - all
+
+  # Database
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    profiles:
+      - local-db
+      # - student
+      # - employer
+      # - admin
+      # - backend
+      # - all
+
+volumes:
+  mongo_data:

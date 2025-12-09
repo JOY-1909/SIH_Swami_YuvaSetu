@@ -46,7 +46,7 @@ async def get_student_recommendations(
     try:
         logger.info("🔍 Getting recommendation engine instance...")
         try:
-            engine = await asyncio.wait_for(get_recommendation_engine(), timeout=30.0)
+            engine = await asyncio.wait_for(get_recommendation_engine(), timeout=120.0)
             logger.info("✅ Engine instance obtained")
         except asyncio.TimeoutError:
             logger.error("❌ Failed to get engine instance (timeout)")
@@ -64,7 +64,7 @@ async def get_student_recommendations(
         if not engine.is_initialized():
             logger.warning("Engine not initialized, attempting to initialize...")
             try:
-                success = await asyncio.wait_for(engine.initialize(), timeout=25.0)
+                success = await asyncio.wait_for(engine.initialize(), timeout=120.0)
                 if not success:
                     logger.error("Failed to initialize recommendation engine")
                     raise HTTPException(status_code=503, detail="Recommendation engine initialization failed")
@@ -111,7 +111,7 @@ async def get_student_recommendations(
                     top_k=limit * 5,  # Get significantly more for filtering and threshold
                     filters=filters
                 ),
-                timeout=30.0
+                timeout=60.0
             )
             logger.info(f"✅ Engine returned {len(recommendations)} recommendations for user {current_user.id} (requested top_k={limit * 5})")
         except asyncio.TimeoutError:
